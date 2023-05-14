@@ -37,9 +37,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'rest_auth',
-    'django.contrib.sites',
-    'allauth',
-    'allauth.account',
+    # 'django.contrib.sites',
+    # 'allauth',
+    # 'allauth.account',
     'rest_auth.registration',
     
     # my apps
@@ -138,3 +138,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'sellers.Seller'
+
+# SITE_ID=1
