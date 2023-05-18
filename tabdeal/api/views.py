@@ -21,7 +21,6 @@ class SellerList(generics.ListAPIView):
         content = {
             'user': str(request.user),
             'access_token': str(request.auth),
-            # 'list': str(json)
         }        
         return Response(content)
             
@@ -50,31 +49,18 @@ class Charge(generics.GenericAPIView):
 class Transfer(generics.GenericAPIView):
     permission_classes = (IsAuthenticated, )
     
-    # def get_serializer_context(self):
-    #     context = super().get_serializer_context()
-    #     context.update({"user": self.request.user})
-    #     return context
-    
     @transaction.atomic
     def post(self, request, *args, **kwargs):
         serializer = TransferSerializer(context = {"user": request.user.phone}, data=request.data)
         if serializer.is_valid():
-            if serializer.data['phone'] == request.user.phone:
-                return Response(serializer.errors)
             amount = Seller.objects.get(phone=request.user.phone).wallet
             value = serializer.data['value']
-            # if int(amount) > int(value):
-            #     return Response(serializer.errors)
-            # print(self.request.user)
             dest = Seller.objects.get(phone=serializer.data['phone'])
             source = Seller.objects.get(phone=request.user.phone)
             source.wallet -= value
             dest.wallet += value
             source.save()
             dest.save()
-            # print(self.request.user.phone)
-            # print(amount)
-            # print(source, dest, value)
             content = {
                 'source': request.user.phone,
                 'source_wallet': request.user.wallet,

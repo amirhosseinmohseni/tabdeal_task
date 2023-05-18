@@ -23,6 +23,8 @@ class TransferSerializer(serializers.Serializer):
         sellers = list(Seller.objects.all().values_list('phone', flat=True))
         if data not in sellers:
             raise serializers.ValidationError('user not found')
+        if data == self.context['user']:
+            raise serializers.ValidationError("you can't transfer to your account")
         return data
     
     def validate_value(self, data):
