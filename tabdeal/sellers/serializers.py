@@ -14,3 +14,20 @@ class ChargeSerializer(serializers.Serializer):
         if value <= 0:
             raise serializers.ValidationError('value must be positive')
         return value
+    
+class TransferSerializer(serializers.Serializer):
+    phone = serializers.CharField(max_length=11)
+    value = serializers.IntegerField()
+    
+    def validate_phone(self, data):
+        sellers = list(Seller.objects.all().values_list('phone', flat=True))
+        if data not in sellers:
+            raise serializers.ValidationError('user not found')
+        return data
+    
+    def validate_value(self, data):
+        if data <= 0:
+            raise serializers.ValidationError('value must be positive')
+        if data >= Seller.objects.get(phone=self.context['user']).wallet:
+            raise serializers.ValidationError('value is greater than walet')
+        return data
