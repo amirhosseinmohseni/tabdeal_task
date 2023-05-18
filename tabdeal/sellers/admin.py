@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Seller
+from .models import Seller, Record
 
 class SellerAdmin(admin.ModelAdmin):
 	list_display = ('phone', 'active', 'wallet')
@@ -10,3 +10,9 @@ class SellerAdmin(admin.ModelAdmin):
 	active.boolean = True
 
 admin.site.register(Seller, SellerAdmin)
+
+class RecordAdmin(admin.ModelAdmin):
+    list_display = ('id', 'created', 'source_seller', 'type', 'destination_seller', 'amount')
+    list_filter = ['created', 'source_seller', 'destination_seller', 'type']
+    
+admin.site.register(Record, RecordAdmin)

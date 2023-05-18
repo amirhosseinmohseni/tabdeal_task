@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from sellers.serializers import SellerSerializer, ChargeSerializer, TransferSerializer
-from sellers.models import Seller
+from sellers.models import Seller, Record
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
@@ -39,6 +39,11 @@ class Charge(generics.GenericAPIView):
             seller = Seller.objects.get(phone=request.user.phone)
             seller.wallet += serializer.data['value']
             seller.save()
+            record = Record(source_seller=Seller.objects.get(phone=request.user),
+                            destination_seller=None,
+                            type='charge',
+                            amount=serializer.data['value'])
+            record.save()
             content = {
                 'user': request.user.phone,
                 'wallet': request.user.wallet
@@ -61,6 +66,11 @@ class Transfer(generics.GenericAPIView):
             dest.wallet += value
             source.save()
             dest.save()
+            record = Record(source_seller=source,
+                            destination_seller=dest,
+                            type='transfer',
+                            amount=value)
+            record.save()
             content = {
                 'source': request.user.phone,
                 'source_wallet': request.user.wallet,
