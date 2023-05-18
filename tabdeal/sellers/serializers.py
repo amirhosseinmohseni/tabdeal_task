@@ -2,11 +2,21 @@ from rest_framework import serializers
 from .models import Seller
 
 
-class SellerSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = ('phone', 'wallet')
-        model = Seller
+# class SellerSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         fields = ('phone', 'wallet')
+#         model = Seller
         
+class SellerListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Seller
+        fields = ['phone']
+        
+class SellerDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Seller
+        fields = ('phone', 'wallet')       
+
 class ChargeSerializer(serializers.Serializer):
     value = serializers.IntegerField()
     

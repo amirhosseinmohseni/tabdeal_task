@@ -1,8 +1,8 @@
 from django.shortcuts import render
-from sellers.serializers import SellerSerializer, ChargeSerializer, TransferSerializer
+from sellers.serializers import SellerListSerializer, SellerDetailSerializer, ChargeSerializer, TransferSerializer
 from sellers.models import Seller, Record
 from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from django.core import serializers
 from sellers.permission import IsOwner
@@ -10,24 +10,34 @@ from django.db import transaction
 
 
 
-class SellerList(generics.ListAPIView):
-    permission_classes = (IsAdminUser, )
+class SellerListView(generics.ListAPIView):
+    # permission_classes = (IsAuthenticatedOrReadOnly, )
     queryset = Seller.objects.all()
-    serializer_class = SellerSerializer
+    serializer_class = SellerListSerializer
+    
+    # def get(self, request, *args, **kwargs):
+    #     data = Seller.objects.all()
+    #     json = SellerListSerializer(data, many=True)
+    #     content = {
+    #         'user': str(request.user),
+    #         'access_token': str(request.auth),
+    #     }        
+    #     return Response(content)
+            
+class SellerDetailView(generics.GenericAPIView):
+    permission_classes = (IsAuthenticated, )
     
     def get(self, request, *args, **kwargs):
-        data = Seller.objects.all()
-        json = SellerSerializer(data, many=True)
+        phone = request.user.phone
+        wallet = Seller.objects.get(phone=phone).wallet
         content = {
-            'user': str(request.user),
-            'access_token': str(request.auth),
-        }        
+            'user': str(phone),
+            'wallet': wallet
+        }
         return Response(content)
-            
-class SellerDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (IsOwner, )
-    queryset = Seller.objects.all()
-    serializer_class = SellerSerializer
+
+# class SellerDetail(generics.GenericAPIView):
+#     serializer_class
     
 class Charge(generics.GenericAPIView):
     permission_classes = (IsAuthenticated, )
@@ -46,7 +56,7 @@ class Charge(generics.GenericAPIView):
             record.save()
             content = {
                 'user': request.user.phone,
-                'wallet': request.user.wallet
+                'wallet': Seller.objects.get(phone=request.user.phone).wallet
             }
             return Response(content)
         return Response(serializer.errors)
@@ -73,7 +83,7 @@ class Transfer(generics.GenericAPIView):
             record.save()
             content = {
                 'source': request.user.phone,
-                'source_wallet': request.user.wallet,
+                'source_wallet': Seller.objects.get(phone=request.user.phone).wallet,
                 'destination': serializer.data['phone'],
                 'value': Seller.objects.get(phone=serializer.data['phone']).wallet
             }
