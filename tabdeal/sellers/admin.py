@@ -12,7 +12,7 @@ class SellerAdmin(admin.ModelAdmin):
 admin.site.register(Seller, SellerAdmin)
 
 class RecordAdmin(admin.ModelAdmin):
-    list_display = ('id', 'created', 'source_seller', 'type', 'destination_seller', 'amount')
+    list_display = ('created', 'source_seller', 'type', 'destination_seller', 'amount')
     list_filter = ['created', 'source_seller', 'destination_seller', 'type']
     
 admin.site.register(Record, RecordAdmin)

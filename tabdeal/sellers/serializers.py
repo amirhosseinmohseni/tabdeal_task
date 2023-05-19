@@ -2,10 +2,15 @@ from rest_framework import serializers
 from .models import Seller
 
 
-# class SellerSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         fields = ('phone', 'wallet')
-#         model = Seller
+class RegisterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Seller
+        fields = ('phone', 'wallet', 'password')
+        write_only_fields = ('password',)
+        
+    def create(self, validated_data):
+        seller = Seller.objects.create_user(phone=validated_data['phone'], wallet=validated_data['wallet'], password=validated_data['password'])
+        return seller
         
 class SellerListSerializer(serializers.ModelSerializer):
     class Meta:
